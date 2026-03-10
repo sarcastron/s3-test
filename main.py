@@ -41,14 +41,14 @@ def main():
     try:
         print("\n Uploading a file")
         key = client.write_object(
-            key="permissions_instructions.md",
+            key="sample.txt",
             source=b"Sample text content for permissions instructions.",
         )
-        # key = client.write_object(
-        #     key="permissions_instructions.md",
-        #     source="./permissions_instructions.md",
-        #     content_type="text/markdown",
-        # )
+        key = client.write_object(
+            key="permissions_instructions.md",
+            source="./permissions_instructions.md",
+            content_type="text/markdown",
+        )
         print(f"Uploaded file with key: {key}")
     except Exception as e:
         print(f"Error file: {e}")
