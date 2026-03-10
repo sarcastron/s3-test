@@ -1,10 +1,7 @@
 [project]
-name = "derp"
+name = "gcp-s3-test"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = [
-    "boto3>=1.42.64",
-    "debugpy>=1.8.20",
-]
+dependencies = ["boto3>=1.42.64", "debugpy>=1.8.20", "rich>=14.3.3"]

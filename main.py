@@ -1,6 +1,8 @@
-"""Derp!"""
+"""Testing the S3 bucket permission for key"""
 
 import os
+from botocore.exceptions import ClientError
+from rich import print as rprint
 from services.test_s3_client import TestS3Client
 
 
@@ -21,11 +23,11 @@ def main():
         ("S3_REGION", region),
     ]:
         if var_val is None:
-            print(f"Warning: Environment variable {var_name} is not set.")
+            rprint(f"Warning: Environment variable {var_name} is not set.")
             kill_it = True
 
     if kill_it:
-        print("Please set the required environment variables and try again.")
+        rprint("Please set the required environment variables and try again.")
         exit(1)
 
     client = TestS3Client(
@@ -35,26 +37,47 @@ def main():
         endpoint_url=endpoint_url,
         region=region,
     )
-    print("Attempting to connect to ", bucket)
+    rprint("Attempting to connect to ", bucket)
 
-    print("Listing objects in the bucket...")
+    rprint("--- Listing objects in the bucket...")
     list_results = client.list_objects(prefix="", max_keys=10)
-    print(list_results)
+    rprint(list_results)
 
     try:
-        print("\n Uploading a file")
+        print("\n--- Uploading a file")
         key = client.write_object(
             key="sample.txt",
             source=b"Sample text content for permissions instructions.",
         )
+        rprint(f"  ├ Uploaded file with key: {key}")
+
         key = client.write_object(
             key="permissions_instructions.md",
             source="./permissions_instructions.md",
             content_type="text/markdown",
         )
-        print(f"Uploaded file with key: {key}")
-    except Exception as e:
-        print(f"Error file: {e}")
+        rprint(f"  ├ Uploaded file with key: {key}")
+    except ClientError as e:
+        rprint(f"S3 Client Error: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        rprint(f"An unexpected error occurred: {e}")
+
+    rprint("\nListing objects after upload the bucket...")
+    list_results = client.list_objects(prefix="", max_keys=10)
+    rprint(list_results)
+
+    rprint("\n---Deleting uploaded object...")
+    try:
+        client.delete_object(key="sample.txt")
+        rprint("  ├ Objects deleted successfully.")
+    except ClientError as e:
+        rprint(f"S3 Client Error during deletion: {e}")
+    except Exception as e:  # pylint: disable=broad-except
+        rprint(f"An unexpected error occurred during deletion: {e}")
+
+    rprint("\n--- Listing objects after deletion the bucket...")
+    list_results = client.list_objects(prefix="", max_keys=10)
+    rprint(list_results)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 """A clean, highly-compatible S3 client for testing with GCS."""
 
+from pathlib import Path
 import boto3
 from botocore.client import Config, ClientError
-from pathlib import Path
 
 
 class TestS3Client:
@@ -20,8 +20,6 @@ class TestS3Client:
     ) -> None:
         self.bucket = bucket
 
-        # GCS S3 Interoperability often works more reliably with V2 signatures ('s3')
-        # than with V4 ('s3v4') for PUT operations involving raw bytes.
         self._client = boto3.client(
             "s3",
             aws_access_key_id=access_key,
@@ -73,7 +71,6 @@ class TestS3Client:
             return key
         except ClientError as e:
             print(f"Upload failed with ClientError: {e}")
-            # Printing the full response can help diagnose GCS-specific errors
             if "Error" in e.response:
                 print(f"GCS Error Code: {e.response['Error'].get('Code')}")
                 print(f"GCS Error Message: {e.response['Error'].get('Message')}")
@@ -87,3 +84,7 @@ class TestS3Client:
         dest_path = Path(dest)
         self._client.download_file(self.bucket, key, str(dest_path))
         return dest_path
+
+    def delete_object(self, key: str) -> None:
+        """Delete an object from the bucket."""
+        self._client.delete_object(Bucket=self.bucket, Key=key)
