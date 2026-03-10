@@ -16,6 +16,7 @@ class TestS3Client:
         access_key: str,
         hmac_secret: str,
         endpoint_url: str,
+        region: str,
     ) -> None:
         self.bucket = bucket
 
@@ -26,7 +27,7 @@ class TestS3Client:
             aws_access_key_id=access_key,
             aws_secret_access_key=hmac_secret,
             endpoint_url=endpoint_url,
-            region_name="us-central1",
+            region_name=region,
             config=Config(
                 signature_version="s3",  # Use V2 signature for maximum compatibility
                 s3={"addressing_style": "path"},

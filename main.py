@@ -10,16 +10,18 @@ def main():
     access_key = os.getenv("S3_ACCESS_KEY", None)
     hmac_secret = os.getenv("S3_HMAC_SECRET", None)
     endpoint_url = os.getenv("S3_ENDPOINT_URL", None)
+    region = os.getenv("S3_REGION", "us-central1")
 
     kill_it = False
-    for var in [
-        bucket,
-        access_key,
-        hmac_secret,
-        endpoint_url,
+    for var_name, var_val in [
+        ("S3_BUCKET", bucket),
+        ("S3_ACCESS_KEY", access_key),
+        ("S3_HMAC_SECRET", hmac_secret),
+        ("S3_ENDPOINT_URL", endpoint_url),
+        ("S3_REGION", region),
     ]:
-        if var is None:
-            print(f"Warning: Environment variable {var} is not set.")
+        if var_val is None:
+            print(f"Warning: Environment variable {var_name} is not set.")
             kill_it = True
 
     if kill_it:
@@ -31,6 +33,7 @@ def main():
         access_key=access_key,
         hmac_secret=hmac_secret,
         endpoint_url=endpoint_url,
+        region=region,
     )
     print("Attempting to connect to ", bucket)
 
